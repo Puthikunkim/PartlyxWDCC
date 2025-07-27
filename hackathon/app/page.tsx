@@ -2,7 +2,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from 'react';
-import testImage from '../public/assets/test.png';
 
 export default function Home() {
   useEffect(() => {
@@ -40,8 +39,11 @@ export default function Home() {
   };
 }, []);
   return (
+<>
 <div className="relative flex flex-col gap-[32px] row-start-2 items-center sm:items-start gradient-bg">
-  <div className="relative flex flex-col items-center justify-center bg-cover bg-center w-full h-screen">
+  
+  <div className="relative flex flex-col items-center justify-start h-[90vh] mt-6 bg-cover bg-center w-full">
+
     
     {/* Gradient Background Layer - z-0 (behind everything) */}
     <div className="gradients-container absolute inset-0 z-0">
@@ -53,6 +55,14 @@ export default function Home() {
     </div>
 
     {/* Main content - z-10 (on top) */}
+        <Image
+        className="z-10 mb-4"
+        src="/little-guy.svg"
+        alt="Next.js logo"
+        width={200}
+        height={50}
+        priority
+        />
     <div className="relative z-10 flex flex-col items-center justify-center gap-3">
       <p className="text-9xl justify-center flex p-0 text-[#1a1a40]">
         AutoMate
@@ -63,7 +73,7 @@ export default function Home() {
     </div>
 
     {/* Button */}
-   <div className="relative z-10 mt-14">
+   <div className="relative z-10 mt-10">
     <Link href="/searchpage">
       <button className="bg-[#6159d0] text-white text-xl px-6 py-3 rounded-full shadow-lg hover:bg-[#5149b0] transition duration-300 cursor-pointer">
         Get started
@@ -71,13 +81,9 @@ export default function Home() {
     </Link>
   </div>
 
-  {/* Interactive blob */}
-  <div className="interactive fixed top-0 left-0 w-32 h-32 rounded-full bg-green-500 pointer-events-none z-50" />
-
-
 
   </div>
-</div>
-
+  </div>
+  </>
   );
 }

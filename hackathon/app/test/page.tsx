@@ -1,8 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Modal from '../components/SubmitModal';
-import testImage from './public/assets/test.png';
-
+import Image from "next/image";
 
 export default function Test() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -46,7 +45,7 @@ export default function Test() {
         name="Test User"
         license="Test License"
         code='1234'
-        imageSrc= './public/assets/test.png'
+        imageSrc={"/little-guy.svg"}
         imageAlt="Test image"
       />   
     </div>

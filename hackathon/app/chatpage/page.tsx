@@ -2,6 +2,10 @@
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
+import Image from "next/image";
+import Modal from '../components/SubmitModal';
+// Last image to be sent
+const LAST_BOT_IMAGE = 'https://cdn.partly.pro/build-sheets/raw/47/f92eff88-81aa-5355-9b31-ba24f7f38f4f/879327C.gif';
 
 interface ChatSession {
   id: string;
@@ -25,6 +29,28 @@ export default function ChatPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeChatId, setActiveChatId] = useState('chat-1');
 
+   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleYes = () => {
+    console.log('User clicked Yes');
+    // Add your logic here
+    setIsModalOpen(false);
+  };
+
+  const handleNo = () => {
+    console.log('User clicked No');
+    // Add your logic here
+    setIsModalOpen(false);
+  };
+
   // Parse file information if present
   let files = [];
   if (filesParam) {
@@ -35,10 +61,8 @@ export default function ChatPage() {
     }
   }
 
-  // Helper to get image URLs from file info (simulate, since we don't have the actual file blobs)
+  // Helper to get image URLs from file info 
   const getImageUrlsFromFileInfo = (fileInfoArr: any[]) => {
-    // In a real app, you'd need to fetch or reconstruct the image URLs from the backend or upload process
-    // Here, we just return empty array since we can't reconstruct images from just name/type/size
     return [];
   };
 
@@ -147,59 +171,73 @@ export default function ChatPage() {
     "Awesome, I’ve saved UNIT SUB-ASSY, HEATER RADIATOR as your selected part. Let me know if you need help with anything else! ✅"
   ];
 
+
+
   // Track the current bot script index
   const [botScriptIndex, setBotScriptIndex] = useState(0);
 
-  // Update sendMessage to use the script and typing delay
   const sendMessage = (message: string) => {
     if (!message.trim()) return;
-    // Add user message
+
+    // 1) Append the user's message immediately
     const updatedSessions = chatSessions.map(chat => {
-      if (chat.id === activeChatId) {
-        const newMessages = [
-          ...chat.messages,
-          {
-            id: Date.now(),
-            sender: 'user' as const,
-            text: message,
-            timestamp: new Date()
-          }
-        ];
+        if (chat.id === activeChatId) {
         return {
-          ...chat,
-          messages: newMessages
+            ...chat,
+            messages: [
+            ...chat.messages,
+            {
+                id: Date.now(),
+                sender: 'user' as const,
+                text: message,
+                timestamp: new Date()
+            }
+            ]
         };
-      }
-      return chat;
+        }
+        return chat;
     });
     setChatSessions(updatedSessions);
-    // Show typing indicator, then add bot reply after delay
+
+    // 2) If there's another bot reply in the script, simulate typing then send it
     if (botScriptIndex < chatScript.length) {
-      setIsBotTyping(true);
-      setTimeout(() => {
-        const updatedSessionsWithBot = chatSessions.map(chat => {
-          if (chat.id === activeChatId) {
+        setIsBotTyping(true);
+
+        setTimeout(() => {
+        // 2a) Are we about to send the very last scripted reply?
+        const isLastScriptReply = botScriptIndex === chatScript.length - 1;
+
+        // 2b) Build the bot's message object, attaching the image if it's the final one
+        const botMessage = {
+            id: Date.now() + 1,
+            sender: 'bot' as const,
+            text: chatScript[botScriptIndex],
+            ...(isLastScriptReply && { imageUrls: [ LAST_BOT_IMAGE ] }),
+            timestamp: new Date()
+        };
+
+        // 2c) Append the bot message to the active chat
+        const updatedSessionsWithBot = updatedSessions.map(chat => {
+            if (chat.id === activeChatId) {
             return {
-              ...chat,
-              messages: [
-                ...updatedSessions.find(c => c.id === chat.id)?.messages || [],
-                {
-                  id: Date.now() + 1,
-                  sender: 'bot' as const,
-                  text: chatScript[botScriptIndex],
-                  timestamp: new Date()
-                }
-              ]
+                ...chat,
+                messages: [
+                ...chat.messages,
+                botMessage
+                ]
             };
-          }
-          return chat;
+            }
+            return chat;
         });
         setChatSessions(updatedSessionsWithBot);
-        setBotScriptIndex(idx => (idx < chatScript.length ? idx + 1 : idx));
+
+        // 2d) Advance the script index and clear typing indicator
+        setBotScriptIndex(idx => Math.min(idx + 1, chatScript.length));
         setIsBotTyping(false);
-      }, 1000);
+        }, 1000);
     }
-  };
+    };
+
 
   // When the chatpage is reloaded or re-entered, reset the script index
   useEffect(() => {
@@ -322,7 +360,14 @@ export default function ChatPage() {
         {/* Header */}
         <div className="p-6 border-b border-[#6159d0]/20 dark:border-gray-600">
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-[#6159d0] dark:text-white">AutoMate</h1>
+            <div className="flex items-center space-x-1">
+              <h1 className="text-2xl font-bold text-[#6159d0] dark:text-white">AutoMate</h1>
+              <img 
+                src="/little-guy.svg" 
+                alt="Icon" 
+                className="h-8 w-8 mr-15 object-contain"
+              />
+            </div>
             <button
               onClick={() => router.push('/searchpage')}
               className="p-2 text-[#6159d0] hover:text-[#4f47b8] dark:text-[#6159d0] dark:hover:text-[#7a72e8] rounded-lg hover:bg-[#6159d0]/10 dark:hover:bg-gray-700 transition-colors duration-200 cursor-pointer"
@@ -437,7 +482,7 @@ export default function ChatPage() {
                           key={idx}
                           src={url}
                           alt="attachment"
-                          className="max-w-[180px] max-h-[180px] rounded border border-[#bebde0] bg-[#f4f4fa] object-cover"
+                          className="max-w-[500px] max-h-[500px] rounded border border-[#bebde0] bg-[#f4f4fa] object-cover"
                         />
                       ))}
                     </div>
@@ -522,6 +567,23 @@ export default function ChatPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
               </svg>
             </button>
+            {botScriptIndex === chatScript.length && <button
+              onClick={handleOpenModal}
+              className="m-4 px-4 py-2 bg-[#6159d0] text-white rounded hover:bg-[#4f47b8] cursor-pointer"
+            >
+              Order part
+            </button>}
+            <Modal 
+              isOpen={isModalOpen}
+              onClose={handleCloseModal}
+              onYes={handleYes}
+              onNo={handleNo}
+              name="RADIATOR ASSY, AIR CONDITIONER"
+              license="44443d3d-7528-484b-af76-9be3f3c86f92"
+              code='8715'
+              imageSrc={"/little-guy.svg"}
+              imageAlt="Test image"
+            />   
           </div>
         </div>
       </div>

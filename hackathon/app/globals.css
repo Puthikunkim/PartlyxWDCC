@@ -4,14 +4,13 @@
   --color-bg1: #6159d0;         /* Deep purple */
   --color-bg2: #ced7f2;         /* Light pastel blue */
 
-  --color1: 255, 179, 128;      /* Pastel orange (RGB 255,179,128) */
-  --color2: 255, 210, 150;      /* Softer pastel orange */
+  --color1: 197, 159, 212;      /* Pastel orange (RGB 255,179,128) */
+  --color2: 175, 170, 228;      /* Softer pastel orange */
 
-  --color3: 144, 238, 144;      /* Pastel green (light green) */
-  --color4: 152, 251, 152;      /* Pale pastel green */
+  --color3: 241, 148, 91;      /* Pastel green (light green) */
+  --color4: #ddaaaf;      /* Pale pastel green */
 
-  --color5: 200, 200, 50;       /* Yellowish pastel (keeping some warmth) */
-
+  --color5: #d5ddf7;       /* Yellowish pastel (keeping some warmth) */
 
   --color-interactive: 140, 100, 255;
   --circle-size: 80%;
@@ -176,18 +175,6 @@ body {
 
   opacity: 1;
 }
-.interactive {
-  position: absolute;
-  background: radial-gradient(circle at center, rgba(var(--color-interactive), 0.8) 0, rgba(var(--color-interactive), 0) 50%) no-repeat;
-  mix-blend-mode: var(--blending);
-
-  width: 100%;
-  height: 100%;
-  top: -50%;
-  left: -50%;
-
-  opacity: 0.7;
-}
 
 @keyframes moveInCircle {
   0% {
@@ -225,37 +212,3 @@ body {
   }
 }
 
-
-
-
-.floating-icon {
-  position: absolute;
-  width: 80px;
-  height: 80px;
-  opacity: 0.3;
-  filter: blur(1px);
-  z-index: 0;
-}
-
-/* Add different animations per icon */
-@keyframes float1 {
-  0%, 100% { transform: translate(0, 0); }
-  50% { transform: translate(20px, -30px); }
-}
-@keyframes float2 {
-  0%, 100% { transform: translate(0, 0); }
-  50% { transform: translate(-15px, 25px); }
-}
-@keyframes float3 {
-  0%, 100% { transform: translate(0, 0); }
-  50% { transform: translate(10px, -20px); }
-}
-@keyframes float4 {
-  0%, 100% { transform: translate(0, 0); }
-  50% { transform: translate(-20px, 10px); }
-}
-
-.float1 { top: 10%; left: 5%; animation: float1 10s ease-in-out infinite; }
-.float2 { top: 40%; left: 70%; animation: float2 12s ease-in-out infinite; }
-.float3 { top: 80%; left: 20%; animation: float3 14s ease-in-out infinite; }
-.float4 { top: 30%; left: 40%; animation: float4 16s ease-in-out infinite; }
