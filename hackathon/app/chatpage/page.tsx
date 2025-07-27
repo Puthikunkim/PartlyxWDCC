@@ -1,7 +1,7 @@
 "use client";
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 interface ChatSession {
   id: string;
@@ -81,14 +81,7 @@ export default function ChatPage() {
       timestamp: new Date()
     });
   }
-  initialMessages.push({
-    id: 100,
-    sender: 'bot' as const,
-    text: 'Is this the correct part?',
-    timestamp: new Date(),
-    hasImage: true,
-    hasButtons: true
-  });
+  // Remove the initial bot message from initialMessages (so only the script is used)
 
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([
     {
@@ -100,6 +93,7 @@ export default function ChatPage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [draggedChatId, setDraggedChatId] = useState<string | null>(null);
+  const [isBotTyping, setIsBotTyping] = useState(false);
 
   const activeChat = chatSessions.find(chat => chat.id === activeChatId) || chatSessions[0];
 
@@ -142,25 +136,108 @@ export default function ChatPage() {
     setActiveChatId(newChat.id);
   };
 
+  // Add at the top of the component, after parsing query/files
+  // The fixed script for the chat
+  const chatScript = [
+    "I can help you with that! 🔧 First, could you please enter your license plate so I can pull up the right info?",
+    "Got it, thanks! Looks like your vehicle is a 1997 Mitsubishi DELICA SPACE GEAR/CARGO.\n What part or assembly are you needing help with?",
+    "Okay, I found something that matches:\n RADIATOR ASSY, AIR CONDITIONER\n Does that sound like the one you need?",
+    "Another option is:\n UNIT SUB-ASSY, HEATER RADIATOR\n Would this be more along the lines of what you're looking for?",
+    "Great! One more related part you might want to consider:\n HEATING & AIR CONDITIONING - CONTROL & AIR DUCT\n Would you like more details on this?",
+    "Awesome, I’ve saved UNIT SUB-ASSY, HEATER RADIATOR as your selected part. Let me know if you need help with anything else! ✅"
+  ];
+
+  // Track the current bot script index
+  const [botScriptIndex, setBotScriptIndex] = useState(0);
+
+  // Update sendMessage to use the script and typing delay
   const sendMessage = (message: string) => {
     if (!message.trim()) return;
-    
+    // Add user message
     const updatedSessions = chatSessions.map(chat => {
       if (chat.id === activeChatId) {
-        return {
-          ...chat,
-          messages: [...chat.messages, {
+        const newMessages = [
+          ...chat.messages,
+          {
             id: Date.now(),
             sender: 'user' as const,
             text: message,
             timestamp: new Date()
-          }]
+          }
+        ];
+        return {
+          ...chat,
+          messages: newMessages
         };
       }
       return chat;
     });
     setChatSessions(updatedSessions);
+    // Show typing indicator, then add bot reply after delay
+    if (botScriptIndex < chatScript.length) {
+      setIsBotTyping(true);
+      setTimeout(() => {
+        const updatedSessionsWithBot = chatSessions.map(chat => {
+          if (chat.id === activeChatId) {
+            return {
+              ...chat,
+              messages: [
+                ...updatedSessions.find(c => c.id === chat.id)?.messages || [],
+                {
+                  id: Date.now() + 1,
+                  sender: 'bot' as const,
+                  text: chatScript[botScriptIndex],
+                  timestamp: new Date()
+                }
+              ]
+            };
+          }
+          return chat;
+        });
+        setChatSessions(updatedSessionsWithBot);
+        setBotScriptIndex(idx => (idx < chatScript.length ? idx + 1 : idx));
+        setIsBotTyping(false);
+      }, 1000);
+    }
   };
+
+  // When the chatpage is reloaded or re-entered, reset the script index
+  useEffect(() => {
+    setBotScriptIndex(0);
+  }, [activeChatId]);
+
+  // On initial mount, if there is a user message and no bot reply yet, add the first bot reply with delay
+  useEffect(() => {
+    const currentChat = chatSessions.find(chat => chat.id === activeChatId);
+    if (!currentChat) return;
+    const hasUserMsg = currentChat.messages.length > 0 && currentChat.messages[0].sender === 'user';
+    const hasBotReply = currentChat.messages.some(m => m.sender === 'bot');
+    if (hasUserMsg && !hasBotReply && chatScript.length > 0) {
+      setIsBotTyping(true);
+      setTimeout(() => {
+        const updatedSessions = chatSessions.map(chat => {
+          if (chat.id === activeChatId) {
+            return {
+              ...chat,
+              messages: [
+                ...chat.messages,
+                {
+                  id: Date.now(),
+                  sender: 'bot' as const,
+                  text: chatScript[0],
+                  timestamp: new Date()
+                }
+              ]
+            };
+          }
+          return chat;
+        });
+        setChatSessions(updatedSessions);
+        setBotScriptIndex(1);
+        setIsBotTyping(false);
+      }, 1000);
+    }
+  }, [chatSessions, activeChatId, chatScript]);
 
   const handleFileUploadClick = () => {
     fileInputRef.current?.click();
@@ -352,7 +429,7 @@ export default function ChatPage() {
                       : 'bg-white/90 dark:bg-gray-700 rounded-bl-none'
                   }`}
                 >
-                  <p className="text-base">{message.text}</p>
+                  <p className="text-lg">{message.text}</p>
                   {message.imageUrls && message.imageUrls.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-3">
                       {message.imageUrls.map((url, idx) => (
@@ -395,10 +472,26 @@ export default function ChatPage() {
               </div>
             </div>
           ))}
+          {isBotTyping && (
+            <div className="flex justify-start">
+              <div className="max-w-[70%] order-1">
+                <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center mb-2 ml-2">
+                  <div className="w-4 h-4 bg-[#6159d0] rounded-full"></div>
+                </div>
+                <div className="p-4 rounded-lg bg-white/90 dark:bg-gray-700 rounded-bl-none">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-[#6159d0] rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-[#6159d0] rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-2 h-2 bg-[#6159d0] rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Chat Input */}
-        <div className="p-6 border-t border-[#6159d0]/20 dark:border-gray-600 bg-white/60 dark:bg-gray-800">
+        <div className="p-6 border-t border-[#6159d0]/20 dark:border-gray-600 bg-white/60 dark:bg-gray-800 text">
           <div className="flex space-x-3">
             <input
               type="text"

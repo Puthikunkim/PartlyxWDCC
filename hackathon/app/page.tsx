@@ -2,6 +2,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from 'react';
+import testImage from '../public/assets/test.png';
 
 export default function Home() {
   useEffect(() => {
@@ -64,7 +65,7 @@ export default function Home() {
     {/* Button */}
    <div className="relative z-10 mt-14">
     <Link href="/searchpage">
-      <button className="bg-[#6159d0] text-white text-xl px-6 py-3 rounded-full shadow-lg hover:bg-[#5149b0] transition duration-300">
+      <button className="bg-[#6159d0] text-white text-xl px-6 py-3 rounded-full shadow-lg hover:bg-[#5149b0] transition duration-300 cursor-pointer">
         Get started
       </button>
     </Link>
@@ -73,13 +74,7 @@ export default function Home() {
   {/* Interactive blob */}
   <div className="interactive fixed top-0 left-0 w-32 h-32 rounded-full bg-green-500 pointer-events-none z-50" />
 
-  {/* Background Image */}
-  <div className="absolute inset-0 pointer-events-none z-0">
-    <img src="/icons/air-conditioner.svg" className="floating-icon float1" />
-    <img src="/icons/exhaust.svg" className="floating-icon float2" />
-    <img src="/icons/steering-wheel-car.svg" className="floating-icon float3" />
-    <img src="/icons/dashboard.svg" className="floating-icon float4" />
-  </div>
+
 
   </div>
 </div>

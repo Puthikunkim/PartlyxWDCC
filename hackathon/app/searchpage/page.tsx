@@ -108,7 +108,7 @@ export default function SearchPage() {
             <h2 className="text-4xl font-semibold text-[#6159d0] dark:text-white mb-4">
               What part are you looking for?
             </h2>
-            <p className="text-lg text-[#6159d0]/80 dark:text-gray-400">
+            <p className="text-2xl text-[#6159d0]/80 dark:text-gray-400">
               Describe your needs and upload any relevant documents
             </p>
           </div>
@@ -120,7 +120,7 @@ export default function SearchPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Tell us about the part you need, include your vehicle details, license plate, and any specific requirements..."
-              className="w-full p-6 text-lg border border-[#6159d0]/30 dark:border-gray-600 rounded-lg resize-none focus:ring-2 focus:ring-[#6159d0] focus:border-[#6159d0] bg-white/80 dark:bg-gray-800 dark:text-white placeholder-[#6159d0]/60 dark:placeholder-gray-400 transition-colors duration-200"
+              className="w-full p-6 text-xl border border-[#6159d0]/30 dark:border-gray-600 rounded-lg resize-none focus:ring-2 focus:ring-[#6159d0] focus:border-[#6159d0] bg-white/80 dark:bg-gray-800 dark:text-white placeholder-[#6159d0]/60 dark:placeholder-gray-400 transition-colors duration-200"
               rows={5}
             />
           </div>
@@ -142,7 +142,7 @@ export default function SearchPage() {
                 <svg className="w-10 h-10 text-[#6159d0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
-                <p className="text-lg text-[#6159d0] dark:text-gray-400">
+                <p className="text-xl text-[#6159d0] dark:text-gray-400">
                   Drop files here or{' '}
                   <button
                     type="button"

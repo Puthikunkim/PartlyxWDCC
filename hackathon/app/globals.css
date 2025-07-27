@@ -225,3 +225,37 @@ body {
   }
 }
 
+
+
+
+.floating-icon {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  opacity: 0.3;
+  filter: blur(1px);
+  z-index: 0;
+}
+
+/* Add different animations per icon */
+@keyframes float1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(20px, -30px); }
+}
+@keyframes float2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-15px, 25px); }
+}
+@keyframes float3 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(10px, -20px); }
+}
+@keyframes float4 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-20px, 10px); }
+}
+
+.float1 { top: 10%; left: 5%; animation: float1 10s ease-in-out infinite; }
+.float2 { top: 40%; left: 70%; animation: float2 12s ease-in-out infinite; }
+.float3 { top: 80%; left: 20%; animation: float3 14s ease-in-out infinite; }
+.float4 { top: 30%; left: 40%; animation: float4 16s ease-in-out infinite; }
